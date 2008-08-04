@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapping PUBLIC "-//EXOLAB/Castor Mapping DTD Version 1.0//EN" "http://castor.org/mapping.dtd">
+<mapping>
+
+  <class name="com.viddler.apiclient.responses.User" auto-complete="true">
+    <map-to xml="user" />    
+    <field name="firstName"><bind-xml name="first_name" node="element" /></field>    
+    <field name="lastName"><bind-xml name="last_name" node="element" /></field>
+    <field name="aboutMe"><bind-xml name="about_me" node="element" /></field>
+    <field name="age"><bind-xml name="age" node="element" /></field>
+    <field name="videoUploadCount"><bind-xml name="video_upload_count" node="element" /></field>
+    <field name="videoWatchCount"><bind-xml name="video_watch_count" node="element" /></field>
+    <field name="friendCount"><bind-xml name="friend_count" node="element" /></field>
+    <field name="favoriteVideoCount"><bind-xml name="favourite_video_count" node="element" /></field>
+  </class>
+  
+  <class name="com.viddler.apiclient.responses.Video" auto-complete="true">
+    <map-to xml="video" />
+    <field name="lengthSeconds"><bind-xml name="length_seconds" /></field>
+    <field name="viewCount"><bind-xml name="view_count" /></field>
+    <field name="uploadTime"><bind-xml name="upload_time" /></field>
+    <field name="madePublicTime"><bind-xml name="made_public_time" /></field>
+    <field name="commentCount"><bind-xml name="comment_count" /></field>
+    <field name="width"><bind-xml name="width" /></field>
+    <field name="height"><bind-xml name="height" /></field>
+    <field name="thumbnailUrl"><bind-xml name="thumbnail_url" /></field>    
+    <field name="updateTime"><bind-xml name="update_time" /></field>
+    <field name="tags"><bind-xml name="tags" /></field>
+    <field name="commentsHolder"><bind-xml name="comment_list" /></field>
+  </class>
+  
+  <class name="com.viddler.apiclient.responses.Tags">
+    <map-to xml="tags" />
+    <field name="global" collection="collection" type="com.viddler.apiclient.responses.GlobalTag" ><bind-xml name="global" /></field>
+    <field name="timed" collection="collection" type="com.viddler.apiclient.responses.TimedTag" ><bind-xml name="timed" /></field>
+  </class>
+
+  <class name="com.viddler.apiclient.responses.GlobalTag">
+    <map-to xml="global" />
+    <field name="value"><bind-xml node="text" /></field>
+  </class>
+  
+  <class name="com.viddler.apiclient.responses.TimedTag">
+    <map-to xml="timed" />
+    <field name="value"><bind-xml node="text" /></field>
+    <field name="offset"><bind-xml name="offset" node="attribute" /></field>
+  </class>
+  
+  <class name="com.viddler.apiclient.responses.Comments">
+    <map-to xml="comment_list" />
+    <field name="total"><bind-xml name="total" node="attribute" /></field>
+    <field name="list" collection="collection" type="com.viddler.apiclient.responses.Comment"><bind-xml name="comment" /></field>
+  </class>
+  
+  <class name="com.viddler.apiclient.responses.Comment" auto-complete="true">
+    <map-to xml="comment" />
+    <field name="id"><bind-xml name="id" /></field>
+    <field name="rating"><bind-xml name="rating" /></field>
+    <field name="parent"><bind-xml name="parent" /></field>
+    <field name="time"><bind-xml name="time" /></field>
+    <field name="addTime"><bind-xml name="add_time" /></field>
+    <field name="video"><bind-xml name="video" /></field>
+  </class>
+  
+  <class name="com.viddler.apiclient.responses.VideoComment" auto-complete="true" />
+  
+  <class name="com.viddler.apiclient.responses.Permissions">
+    <map-to xml="permissions" />
+    <field name="view" />
+    <field name="embed" />
+    <field name="tagging" />
+    <field name="commenting" />
+    <field name="download" />
+  </class>
+  
+  <class name="com.viddler.apiclient.responses.Permission">
+    <field name="level"><bind-xml name="level" node="attribute" /></field>
+    <field name="secreturl"><bind-xml name="secreturl" /></field>
+    <field name="users" type="java.lang.String" collection="collection"><bind-xml name="user" /></field>
+    <field name="lists" type="java.lang.String" collection="collection"><bind-xml name="list" /></field>
+  </class>
+  
+  <class name="com.viddler.apiclient.responses.VideoList">
+    <field name="total"><bind-xml name="total" node="attribute" /></field>
+    <field name="videos" collection="collection" type="com.viddler.apiclient.responses.Video"><bind-xml name="video" /></field>
+  </class>
+
+</mapping>
