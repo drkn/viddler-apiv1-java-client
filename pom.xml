@@ -3,8 +3,22 @@
   <groupId>com.viddler</groupId>
   <artifactId>viddler-apiclient</artifactId>
   <name>Viddler.com API client</name>
-  <version>1.0a</version>
+  <version>1.0.1</version>
   <url>http://www.viddler.com</url>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <fork>false</fork>
+          <compilerVersion>1.5</compilerVersion>
+          <source>1.5</source>
+          <target>1.5</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
   
   <dependencies>
     <dependency>
