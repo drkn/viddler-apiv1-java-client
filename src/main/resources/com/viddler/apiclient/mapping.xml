@@ -84,5 +84,9 @@
     <field name="total"><bind-xml name="total" node="attribute" /></field>
     <field name="videos" collection="collection" type="com.viddler.apiclient.responses.Video"><bind-xml name="video" /></field>
   </class>
+  
+  <class name="com.viddler.apiclient.responses.Upload" auto-complete="true">
+    <map-to xml="upload" />
+  </class>
 
 </mapping>

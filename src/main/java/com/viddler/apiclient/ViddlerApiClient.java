@@ -40,6 +40,7 @@ import com.viddler.apiclient.responses.ApiResponse;
 import com.viddler.apiclient.responses.Auth;
 import com.viddler.apiclient.responses.Comment;
 import com.viddler.apiclient.responses.Error;
+import com.viddler.apiclient.responses.Upload;
 import com.viddler.apiclient.responses.User;
 import com.viddler.apiclient.responses.Video;
 import com.viddler.apiclient.responses.VideoList;
@@ -53,11 +54,13 @@ import com.viddler.apiclient.responses.VideoStatus;
  * ApiInfo apiInfo = client.viddlerApiGetInfo();
  * </pre>
  * 
- * For detailed methods and method parameters description see Viddler API documentation page at
+ * For detailed methods and method parameters description see Viddler API
+ * documentation page at
  * http://wiki.developers.viddler.com/index.php/Viddler_API
  * 
- * Note: This is first public release of Java Viddler API Client which may still contain bugs and
- * missing javadocs. If you have any problems or questions fell free to contact me at:
+ * Note: This is first public release of Java Viddler API Client which may still
+ * contain bugs and missing javadocs. If you have any problems or questions fell
+ * free to contact me at:
  * 
  * <pre>
  * Viddler: 
@@ -72,7 +75,7 @@ import com.viddler.apiclient.responses.VideoStatus;
 public class ViddlerApiClient {
 
   public static final String ENDPOINT = "http://api.viddler.com/rest/v1/";
-  public static final String CLIENTVERSION = "1.0a";
+  public static final String CLIENTVERSION = "1.1";
   public static final int ERRORCODE_SESSION_INVALID = 9;
 
   private Credentials credentials;
@@ -106,8 +109,10 @@ public class ViddlerApiClient {
   /**
    * Set proxy for http connection
    * 
-   * @param host Proxy server host
-   * @param port Proxy server port
+   * @param host
+   *          Proxy server host
+   * @param port
+   *          Proxy server port
    */
   public void setProxy(String host, int port) {
     if (host != null && port > 0) {
@@ -130,8 +135,8 @@ public class ViddlerApiClient {
   }
 
   /**
-   * Set custom API endpoint (generally for testing purposes). Changing endpoint will reset your
-   * current credentials
+   * Set custom API endpoint (generally for testing purposes). Changing endpoint
+   * will reset your current credentials
    * 
    * @param endpoint
    */
@@ -173,8 +178,8 @@ public class ViddlerApiClient {
   }
 
   /**
-   * Enables one method call API login. This method is a wrapper for <code>setCredentials</code>
-   * and <code>viddlerUsersAuth</code> methods
+   * Enables one method call API login. This method is a wrapper for
+   * <code>setCredentials</code> and <code>viddlerUsersAuth</code> methods
    * 
    * @see #setCredentials(String, String)
    * @see #viddlerUsersAuth()
@@ -317,8 +322,9 @@ public class ViddlerApiClient {
    * viddler.videos.getDetails
    * 
    * @param videoid
-   * @param useSessionId Send current crendentials with request? This allows to get private
-   * information about currently logged in user's videos
+   * @param useSessionId
+   *          Send current crendentials with request? This allows to get private
+   *          information about currently logged in user's videos
    * @return
    * @throws ClientException
    * @throws ApiException
@@ -449,20 +455,48 @@ public class ViddlerApiClient {
    */
   public Video viddlerVideosUpload(File file, String title, String description, String[] tags, Boolean forceMakePublic)
       throws ClientException, ApiException {
+    return viddlerVideosUpload(null, file, title, description, tags, forceMakePublic);
+  }
+
+  /**
+   * viddler.videos.upload
+   * 
+   * @param file
+   * @param title
+   * @param description
+   * @param tags
+   * @param forceMakePublic
+   * @return
+   * @throws ClientException
+   * @throws ApiException
+   */
+  public Video viddlerVideosUpload(Upload upload, File file, String title, String description, String[] tags,
+      Boolean forceMakePublic) throws ClientException, ApiException {
     checkAuth();
     String serializedTags = serializeTags(tags);
     Document doc = null;
     try {
-      doc = execute(prepareUpload(file, title, description, serializedTags, forceMakePublic));
+      doc = execute(prepareUpload(upload, file, title, description, serializedTags, forceMakePublic));
     } catch (ApiException e) {
       if (e.getError().getCode() == ERRORCODE_SESSION_INVALID && reauthenticate) {
         viddlerUsersAuth();
       } else {
         throw e;
       }
-      doc = execute(prepareUpload(file, title, description, serializedTags, forceMakePublic));
+      doc = execute(prepareUpload(upload, file, title, description, serializedTags, forceMakePublic));
     }
     return unmarshal(doc, Video.class);
+  }
+
+  /**
+   * viddler.videos.prepareUpload
+   * 
+   * @return
+   * @throws ClientException
+   * @throws ApiException
+   */
+  public Upload viddlerVideosPrepareUpload() throws ClientException, ApiException {
+    return (Upload) unmarshal(get("viddler.videos.prepareUpload", null, true), Upload.class);
   }
 
   /**
@@ -476,9 +510,9 @@ public class ViddlerApiClient {
    * @return
    * @throws ClientException
    */
-  private PostMethod prepareUpload(File file, String title, String description, String tags, Boolean makePublic)
-      throws ClientException {
-    PostMethod post = new PostMethod(endpoint);
+  private PostMethod prepareUpload(Upload upload, File file, String title, String description, String tags,
+      Boolean makePublic) throws ClientException {
+    PostMethod post = new PostMethod(upload != null ? upload.getEndpoint() : endpoint);
     try {
       post.setRequestEntity(new MultipartRequestEntity(new Part[] { new StringPart("api_key", apiKey),
           new StringPart("method", "viddler.videos.upload"),
@@ -495,8 +529,8 @@ public class ViddlerApiClient {
   /**
    * viddler.videos.setDetails
    * 
-   * All parameters except videoid are optional. If you don't want to change anything, just pass
-   * <code>null</code>
+   * All parameters except videoid are optional. If you don't want to change
+   * anything, just pass <code>null</code>
    * 
    * @param videoid
    * @param title
@@ -539,7 +573,7 @@ public class ViddlerApiClient {
     map.put("tagging_users", taggingUsers);
     return unmarshal(post("viddler.videos.setDetails", map.serialize(), true), Video.class);
   }
-  
+
   /**
    * 
    * @param videoid
@@ -549,8 +583,8 @@ public class ViddlerApiClient {
    * @throws ApiException
    */
   public boolean viddlerVideosSetPermalink(String videoid, String permalink) throws ClientException, ApiException {
-    return "success".equals(post("viddler.videos.setPermalink", new String[][] { { "video_id", videoid }, {"permalink", permalink} }, true)
-        .getFirstChild().getNodeName());
+    return "success".equals(post("viddler.videos.setPermalink",
+        new String[][] { { "video_id", videoid }, { "permalink", permalink } }, true).getFirstChild().getNodeName());
   }
 
   /**
@@ -750,8 +784,8 @@ public class ViddlerApiClient {
   }
 
   /**
-   * Class uses castor's unmarshal method which is not compatibile with Java 1.5 therefore must
-   * supress unchecked warning
+   * Class uses castor's unmarshal method which is not compatibile with Java 1.5
+   * therefore must supress unchecked warning
    * 
    * @param <T>
    * @param document
