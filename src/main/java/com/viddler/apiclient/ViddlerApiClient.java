@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.viddler.apiclient;
 
@@ -26,6 +26,7 @@ import org.apache.commons.httpclient.methods.multipart.FilePart;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
+import org.apache.commons.httpclient.params.HttpClientParams;
 import org.exolab.castor.mapping.Mapping;
 import org.exolab.castor.mapping.MappingException;
 import org.exolab.castor.xml.MarshalException;
@@ -40,6 +41,7 @@ import com.viddler.apiclient.responses.ApiResponse;
 import com.viddler.apiclient.responses.Auth;
 import com.viddler.apiclient.responses.Comment;
 import com.viddler.apiclient.responses.Error;
+import com.viddler.apiclient.responses.Thumbnail;
 import com.viddler.apiclient.responses.Upload;
 import com.viddler.apiclient.responses.User;
 import com.viddler.apiclient.responses.Video;
@@ -63,7 +65,7 @@ import com.viddler.apiclient.responses.VideoStatus;
  * free to contact me at:
  * 
  * <pre>
- * Viddler: 
+ * Viddler:
  * - http://www.viddler.com/drkn/
  * - http://www.viddler.com/forums/support/
  * - http://www.viddler.com/groups/developers/
@@ -75,7 +77,9 @@ import com.viddler.apiclient.responses.VideoStatus;
 public class ViddlerApiClient {
 
   public static final String ENDPOINT = "http://api.viddler.com/rest/v1/";
-  public static final String CLIENTVERSION = "1.1";
+  public static final String CLIENTVERSION = "1.2";
+  public static final String CHARSET = "UTF-8";
+  public static int SO_TIMEOUT = 30000;
   public static final int ERRORCODE_SESSION_INVALID = 9;
 
   private Credentials credentials;
@@ -97,6 +101,10 @@ public class ViddlerApiClient {
     }
     this.apiKey = apiKey;
     httpClient = new HttpClient();
+    HttpClientParams params = httpClient.getParams();
+    params.setContentCharset(CHARSET);
+    params.setUriCharset(CHARSET);
+    params.setSoTimeout(SO_TIMEOUT);
     try {
       mapping.loadMapping(getClass().getClassLoader().getResource("com/viddler/apiclient/mapping.xml"));
     } catch (IOException e) {
@@ -362,6 +370,16 @@ public class ViddlerApiClient {
         VideoStatus.class);
   }
 
+  public VideoList viddlerVideosGetByUser(String username, Integer page, Integer perPage, boolean useSessionId)
+      throws ClientException, ApiException {
+    return viddlerVideosGetByUser(username, page, perPage, null, null, useSessionId);
+  }
+
+  public VideoList viddlerVideosGetByUser(String[] usernames, Integer page, Integer perPage, boolean useSessionId)
+      throws ClientException, ApiException {
+    return viddlerVideosGetByUser(usernames, page, perPage, null, null, useSessionId);
+  }
+
   /**
    * viddler.videos.getByUser
    * 
@@ -373,12 +391,18 @@ public class ViddlerApiClient {
    * @throws ClientException
    * @throws ApiException
    */
-  public VideoList viddlerVideosGetByUser(String[] usernames, Integer page, Integer perPage, boolean useSessionId)
-      throws ClientException, ApiException {
+  public VideoList viddlerVideosGetByUser(String[] usernames, Integer page, Integer perPage, VideosListSort sort,
+      String[] tags, boolean useSessionId) throws ClientException, ApiException {
     ParametersMap<String, Serializable> map = new ParametersMap<String, Serializable>();
     map.put("user", usernames);
     map.put("page", page);
     map.put("per_page", perPage);
+    if (sort != null) {
+      map.put("sort", sort.value());
+    }
+    if (tags != null && tags.length > 0) {
+      map.put("tags", serializeTags(tags));
+    }
     return unmarshal(get("viddler.videos.getByUser", map.serialize(), useSessionId), VideoList.class);
   }
 
@@ -393,9 +417,9 @@ public class ViddlerApiClient {
    * @throws ClientException
    * @throws ApiException
    */
-  public VideoList viddlerVideosGetByUser(String username, Integer page, Integer perPage, boolean useSessionId)
-      throws ClientException, ApiException {
-    return viddlerVideosGetByUser(new String[] { username }, page, perPage, useSessionId);
+  public VideoList viddlerVideosGetByUser(String username, Integer page, Integer perPage, VideosListSort sort,
+      String[] tags, boolean useSessionId) throws ClientException, ApiException {
+    return viddlerVideosGetByUser(new String[] { username }, page, perPage, sort, tags, useSessionId);
   }
 
   /**
@@ -409,6 +433,11 @@ public class ViddlerApiClient {
     return unmarshal(get("viddler.videos.getFeatured", null, false), VideoList.class);
   }
 
+  public VideoList viddlerVideosGetByTag(String tag, Integer page, Integer perPage) throws ClientException,
+      ApiException {
+    return viddlerVideosGetByTag(tag, page, perPage, null);
+  }
+
   /**
    * viddler.videos.getByTag
    * 
@@ -419,12 +448,15 @@ public class ViddlerApiClient {
    * @throws ClientException
    * @throws ApiException
    */
-  public VideoList viddlerVideosGetByTag(String tag, Integer page, Integer perPage) throws ClientException,
-      ApiException {
+  public VideoList viddlerVideosGetByTag(String tag, Integer page, Integer perPage, VideosListSort sort)
+      throws ClientException, ApiException {
     ParametersMap<String, Serializable> map = new ParametersMap<String, Serializable>();
     map.put("tag", tag);
     map.put("page", page);
     map.put("per_page", perPage);
+    if (sort != null) {
+      map.put("sort", sort.value());
+    }
     return unmarshal(get("viddler.videos.getByTag", map.serialize(), false), VideoList.class);
   }
 
@@ -585,6 +617,19 @@ public class ViddlerApiClient {
   public boolean viddlerVideosSetPermalink(String videoid, String permalink) throws ClientException, ApiException {
     return "success".equals(post("viddler.videos.setPermalink",
         new String[][] { { "video_id", videoid }, { "permalink", permalink } }, true).getFirstChild().getNodeName());
+  }
+
+  /**
+   * 
+   * @param videoid
+   * @param timepoint
+   * @return
+   * @throws ClientException
+   * @throws ApiException
+   */
+  public Thumbnail viddlerVideosSetThumbnail(String videoid, int timepoint) throws ClientException, ApiException {
+    return unmarshal(post("viddler.videos.setThumbnail", new String[][] { { "video_id", videoid },
+        { "timepoint", "" + timepoint } }, true), Thumbnail.class);
   }
 
   /**
