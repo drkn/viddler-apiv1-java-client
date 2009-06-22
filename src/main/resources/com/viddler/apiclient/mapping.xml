@@ -82,7 +82,14 @@
   
   <class name="com.viddler.apiclient.responses.VideoList">
     <field name="total"><bind-xml name="total" node="attribute" /></field>
+    <field name="type"><bind-xml name="type" node="attribute" /></field>
+    <field name="sort"><bind-xml name="sort" node="attribute" /></field>
     <field name="videos" collection="collection" type="com.viddler.apiclient.responses.Video"><bind-xml name="video" /></field>
+  </class>
+  
+  <class name="com.viddler.apiclient.responses.UserList">
+    <field name="type"><bind-xml name="type" node="attribute" /></field>
+    <field name="users" collection="collection" type="com.viddler.apiclient.responses.User"><bind-xml name="user" /></field>
   </class>
   
   <class name="com.viddler.apiclient.responses.Upload" auto-complete="true">

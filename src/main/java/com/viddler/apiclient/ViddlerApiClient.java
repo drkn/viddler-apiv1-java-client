@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -44,6 +45,7 @@ import com.viddler.apiclient.responses.Error;
 import com.viddler.apiclient.responses.Thumbnail;
 import com.viddler.apiclient.responses.Upload;
 import com.viddler.apiclient.responses.User;
+import com.viddler.apiclient.responses.UserList;
 import com.viddler.apiclient.responses.Video;
 import com.viddler.apiclient.responses.VideoList;
 import com.viddler.apiclient.responses.VideoStatus;
@@ -77,10 +79,11 @@ import com.viddler.apiclient.responses.VideoStatus;
 public class ViddlerApiClient {
 
   public static final String ENDPOINT = "http://api.viddler.com/rest/v1/";
-  public static final String CLIENTVERSION = "1.2";
+  public static final String CLIENTVERSION = "1.3";
   public static final String CHARSET = "UTF-8";
-  public static int SO_TIMEOUT = 30000;
+  public static final int SO_TIMEOUT = 30000;
   public static final int ERRORCODE_SESSION_INVALID = 9;
+  public static final int DEFAULT_LIST_PAGE_SIZE = 10;
 
   private Credentials credentials;
   private String apiKey;
@@ -315,6 +318,31 @@ public class ViddlerApiClient {
   }
 
   /**
+   * Search users
+   * 
+   * @param query
+   * @param type
+   * @param page
+   * @param perPage
+   * @return
+   * @throws ClientException
+   * @throws ApiException
+   */
+  public UserList viddlerUsersSearch(String query, UsersSearchType type, Integer page, Integer perPage)
+      throws ClientException, ApiException {
+    ParametersMap<String, Serializable> map = new ParametersMap<String, Serializable>();
+    map.put("query", query);
+    map.put("type", type != null ? type.name() : UsersSearchType.everybody.name());
+    map.put("page", page);
+    map.put("per_page", perPage);
+    return unmarshal(get("viddler.users.search", map.serialize(), false), UserList.class);
+  }
+
+  public UserList viddlerUsersSearch(String query) throws ClientException, ApiException {
+    return viddlerUsersSearch(query, UsersSearchType.everybody, 1, DEFAULT_LIST_PAGE_SIZE);
+  }
+
+  /**
    * viddler.videos.getRecordToken
    * 
    * @return
@@ -532,6 +560,32 @@ public class ViddlerApiClient {
   }
 
   /**
+   * Searches viddler's videos
+   * 
+   * @param query
+   * @param type
+   * @param page
+   * @param perPage
+   * @param useSessionId - Note that for myvideos and friendsvideos searches - session id is required
+   * @return
+   * @throws ClientException
+   * @throws ApiException
+   */
+  public VideoList viddlerVideosSearch(String query, VideosSearchType type, Integer page, Integer perPage,
+      boolean useSessionId) throws ClientException, ApiException {
+    ParametersMap<String, Serializable> map = new ParametersMap<String, Serializable>();
+    map.put("query", query);
+    map.put("type", type != null ? type.name() : VideosSearchType.relevant.name());
+    map.put("page", page);
+    map.put("per_page", perPage);
+    return unmarshal(get("viddler.videos.search", map.serialize(), useSessionId), VideoList.class);
+  }
+
+  public VideoList viddlerVideosSearch(String query) throws ClientException, ApiException {
+    return viddlerVideosSearch(query, VideosSearchType.relevant, 1, DEFAULT_LIST_PAGE_SIZE, false);
+  }
+
+  /**
    * Helper for preparing upload POST HTTP request
    * 
    * @param file
@@ -632,6 +686,7 @@ public class ViddlerApiClient {
         { "timepoint", "" + timepoint } }, true), Thumbnail.class);
   }
 
+
   /**
    * viddler.videos.comments.add
    * 
@@ -641,9 +696,19 @@ public class ViddlerApiClient {
    * @throws ClientException
    * @throws ApiException
    */
+  public Comment viddlerVideosCommentsAdd(String videoid, String comment, BigDecimal timepoint) throws ClientException,
+      ApiException {
+    if (timepoint != null) {
+      return unmarshal(post("viddler.videos.comments.add", new String[][] { { "video_id", videoid },
+          { "text", comment }, { "timepoint", "" + timepoint } }, true), Comment.class);
+    } else {
+      return unmarshal(post("viddler.videos.comments.add", new String[][] { { "video_id", videoid },
+          { "text", comment } }, true), Comment.class);
+    }
+  }
+  
   public Comment viddlerVideosCommentsAdd(String videoid, String comment) throws ClientException, ApiException {
-    return unmarshal(post("viddler.videos.comments.add",
-        new String[][] { { "video_id", videoid }, { "text", comment } }, true), Comment.class);
+    return viddlerVideosCommentsAdd(videoid, comment, null);
   }
 
   /**
@@ -654,7 +719,7 @@ public class ViddlerApiClient {
    * @throws ClientException
    * @throws ApiException
    */
-  public boolean viddlerVideoscommentsRemove(int commentId) throws ClientException, ApiException {
+  public boolean viddlerVideosCommentsRemove(int commentId) throws ClientException, ApiException {
     return "success".equals(post("viddler.videos.comments.remove", new String[][] { { "comment_id", "" + commentId } },
         true).getFirstChild().getNodeType());
   }
