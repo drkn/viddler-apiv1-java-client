@@ -79,7 +79,7 @@ import com.viddler.apiclient.responses.VideoStatus;
 public class ViddlerApiClient {
 
   public static final String ENDPOINT = "http://api.viddler.com/rest/v1/";
-  public static final String CLIENTVERSION = "1.3";
+  public static final String CLIENTVERSION = "1.3.0";
   public static final String CHARSET = "UTF-8";
   public static final int SO_TIMEOUT = 30000;
   public static final int ERRORCODE_SESSION_INVALID = 9;
