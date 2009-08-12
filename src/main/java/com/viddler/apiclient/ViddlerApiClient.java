@@ -79,7 +79,7 @@ import com.viddler.apiclient.responses.VideoStatus;
 public class ViddlerApiClient {
 
   public static final String ENDPOINT = "http://api.viddler.com/rest/v1/";
-  public static final String CLIENTVERSION = "1.3.0";
+  public static final String CLIENTVERSION = "1.4.0";
   public static final String CHARSET = "UTF-8";
   public static final int SO_TIMEOUT = 30000;
   public static final int ERRORCODE_SESSION_INVALID = 9;
@@ -686,6 +686,29 @@ public class ViddlerApiClient {
         { "timepoint", "" + timepoint } }, true), Thumbnail.class);
   }
 
+  /**
+   * Upload a thumbnail for a video
+   * 
+   * @param videoid
+   * @param file
+   * @return
+   * @throws ClientException
+   * @throws ApiException
+   */
+  public Thumbnail viddlerVideosSetThumbnail(String videoid, File file) throws ClientException, ApiException {
+    try {
+      checkAuth();
+      PostMethod post = new PostMethod(endpoint);
+      post
+          .setRequestEntity(new MultipartRequestEntity(new Part[] { new StringPart("api_key", apiKey),
+              new StringPart("method", "viddler.videos.setThumbnail"), new StringPart("video_id", videoid),
+              new StringPart("sessionid", getCredentials().getSessionid()), new FilePart("file", file) }, post
+              .getParams()));
+      return unmarshal(execute(post), Thumbnail.class);
+    } catch (FileNotFoundException e) {
+      throw new ClientException("Thumbnail not found", e);
+    }
+  }
 
   /**
    * viddler.videos.comments.add
@@ -706,7 +729,7 @@ public class ViddlerApiClient {
           { "text", comment } }, true), Comment.class);
     }
   }
-  
+
   public Comment viddlerVideosCommentsAdd(String videoid, String comment) throws ClientException, ApiException {
     return viddlerVideosCommentsAdd(videoid, comment, null);
   }
