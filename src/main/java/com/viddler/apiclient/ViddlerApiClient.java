@@ -28,6 +28,9 @@ import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.apache.commons.httpclient.params.HttpClientParams;
+import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
+import org.apache.commons.httpclient.protocol.SSLProtocolSocketFactory;
 import org.exolab.castor.mapping.Mapping;
 import org.exolab.castor.mapping.MappingException;
 import org.exolab.castor.xml.MarshalException;
@@ -49,6 +52,7 @@ import com.viddler.apiclient.responses.UserList;
 import com.viddler.apiclient.responses.Video;
 import com.viddler.apiclient.responses.VideoList;
 import com.viddler.apiclient.responses.VideoStatus;
+import com.viddler.apiclient.ssl.UnsecureSSLProtocolSocketFactory;
 
 /**
  * Java Viddler API Client main class. Basic usage:
@@ -79,7 +83,7 @@ import com.viddler.apiclient.responses.VideoStatus;
 public class ViddlerApiClient {
 
   public static final String ENDPOINT = "http://api.viddler.com/rest/v1/";
-  public static final String CLIENTVERSION = "1.4.0";
+  public static final String CLIENTVERSION = "1.5.0";
   public static final String CHARSET = "UTF-8";
   public static final int SO_TIMEOUT = 30000;
   public static final int ERRORCODE_SESSION_INVALID = 9;
@@ -145,15 +149,26 @@ public class ViddlerApiClient {
     return credentials;
   }
 
+  public void setEndpoint(String endpoint) {
+    setEndpoint(endpoint, false);
+  }
+
   /**
    * Set custom API endpoint (generally for testing purposes). Changing endpoint
    * will reset your current credentials
    * 
    * @param endpoint
    */
-  public void setEndpoint(String endpoint) {
+  public void setEndpoint(String endpoint, boolean useDevSSL) {
     this.endpoint = endpoint;
     this.credentials = null;
+    if (useDevSSL) {
+      Protocol.registerProtocol("https", new Protocol("https",
+          (ProtocolSocketFactory) new UnsecureSSLProtocolSocketFactory(), 443));
+    } else {
+      Protocol.registerProtocol("https", new Protocol("https", (ProtocolSocketFactory) new SSLProtocolSocketFactory(),
+          443));
+    }
   }
 
   /*
@@ -176,16 +191,20 @@ public class ViddlerApiClient {
    * @throws ClientException
    * @throws ApiException
    */
-  public void viddlerUsersAuth() throws ClientException, ApiException {
+  public void viddlerUsersAuth(boolean useSSL) throws ClientException, ApiException {
     if (credentials == null) {
       throw new ClientException("This method requires authentication but no credentials were set");
     }
     // Clear current session
     credentials.setSessionid(null);
     Auth response = (Auth) unmarshal(post("viddler.users.auth", new String[][] { { "user", credentials.getUsername() },
-        { "password", credentials.getPassword() } }, false), Auth.class);
+        { "password", credentials.getPassword() } }, false, useSSL), Auth.class);
     // Set new session
     credentials.setSessionid(response.getSessionid());
+  }
+
+  public void viddlerUsersAuth() throws ClientException, ApiException {
+    viddlerUsersAuth(false);
   }
 
   /**
@@ -200,9 +219,13 @@ public class ViddlerApiClient {
    * @throws ClientException
    * @throws ApiException
    */
-  public void viddlerUsersAuth(String username, String password) throws ClientException, ApiException {
+  public void viddlerUsersAuth(String username, String password, boolean useSSL) throws ClientException, ApiException {
     setCredentials(username, password);
-    viddlerUsersAuth();
+    viddlerUsersAuth(useSSL);
+  }
+
+  public void viddlerUsersAuth(String username, String password) throws ClientException, ApiException {
+    viddlerUsersAuth(username, password, false);
   }
 
   /**
@@ -781,9 +804,10 @@ public class ViddlerApiClient {
    * @throws ClientException
    * @throws ApiException
    */
-  private Document get(String apiMethod, String[][] params, boolean requireAuth) throws ClientException, ApiException {
+  private Document get(String apiMethod, String[][] params, boolean requireAuth, boolean ssl) throws ClientException,
+      ApiException {
     try {
-      return execute(prepareGet(apiMethod, params, requireAuth));
+      return execute(prepareGet(apiMethod, params, requireAuth, ssl));
     } catch (ApiException e) {
       if (e.getError().getCode() == ERRORCODE_SESSION_INVALID && reauthenticate) {
         viddlerUsersAuth();
@@ -792,6 +816,10 @@ public class ViddlerApiClient {
       }
       return execute(prepareGet(apiMethod, params, requireAuth));
     }
+  }
+
+  private Document get(String apiMethod, String[][] params, boolean requireAuth) throws ClientException, ApiException {
+    return get(apiMethod, params, requireAuth, false);
   }
 
   /**
@@ -804,12 +832,17 @@ public class ViddlerApiClient {
    * @throws ClientException
    * @throws ApiException
    */
-  private GetMethod prepareGet(String apiMethod, String[][] params, boolean requireAuth) throws ClientException,
-      ApiException {
-    GetMethod get = new GetMethod(endpoint);
+  private GetMethod prepareGet(String apiMethod, String[][] params, boolean requireAuth, boolean ssl)
+      throws ClientException, ApiException {
+    GetMethod get = new GetMethod(ssl ? getSSLEndpoint() : endpoint);
     List<NameValuePair> nvps = prepareParameters(apiMethod, params, requireAuth);
     get.setQueryString(nvps.toArray(new NameValuePair[nvps.size()]));
     return get;
+  }
+
+  private GetMethod prepareGet(String apiMethod, String[][] params, boolean requireAuth) throws ClientException,
+      ApiException {
+    return prepareGet(apiMethod, params, requireAuth, false);
   }
 
   /**
@@ -821,9 +854,10 @@ public class ViddlerApiClient {
    * @throws ClientException
    * @throws ApiException
    */
-  private Document post(String apiMethod, String[][] params, boolean requireAuth) throws ClientException, ApiException {
+  private Document post(String apiMethod, String[][] params, boolean requireAuth, boolean ssl) throws ClientException,
+      ApiException {
     try {
-      return execute(preparePost(apiMethod, params, requireAuth));
+      return execute(preparePost(apiMethod, params, requireAuth, ssl));
     } catch (ApiException e) {
       if (e.getError().getCode() == ERRORCODE_SESSION_INVALID && reauthenticate) {
         viddlerUsersAuth();
@@ -832,6 +866,10 @@ public class ViddlerApiClient {
       }
       return execute(preparePost(apiMethod, params, requireAuth));
     }
+  }
+
+  private Document post(String apiMethod, String[][] params, boolean requireAuth) throws ClientException, ApiException {
+    return post(apiMethod, params, requireAuth, false);
   }
 
   /**
@@ -844,12 +882,17 @@ public class ViddlerApiClient {
    * @throws ClientException
    * @throws ApiException
    */
-  private PostMethod preparePost(String apiMethod, String[][] params, boolean requireAuth) throws ClientException,
-      ApiException {
-    PostMethod post = new PostMethod(endpoint);
+  private PostMethod preparePost(String apiMethod, String[][] params, boolean requireAuth, boolean ssl)
+      throws ClientException, ApiException {
+    PostMethod post = new PostMethod(ssl ? getSSLEndpoint() : endpoint);
     List<NameValuePair> nvps = prepareParameters(apiMethod, params, requireAuth);
     post.setRequestBody(nvps.toArray(new NameValuePair[nvps.size()]));
     return post;
+  }
+
+  private PostMethod preparePost(String apiMethod, String[][] params, boolean requireAuth) throws ClientException,
+      ApiException {
+    return preparePost(apiMethod, params, requireAuth, false);
   }
 
   /**
@@ -1001,6 +1044,13 @@ public class ViddlerApiClient {
   public String toString() {
     return String.format(ViddlerApiClient.class.getName() + " [endpoint=%s, apiKey=%s, credentials=%s]", endpoint,
         apiKey, credentials != null ? credentials.toString() : null);
+  }
+
+  private String getSSLEndpoint() {
+    if (endpoint != null && endpoint.startsWith("http://")) {
+      return "https://" + endpoint.substring(7);
+    }
+    return endpoint;
   }
 
 }
