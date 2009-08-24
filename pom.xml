@@ -3,7 +3,7 @@
   <groupId>com.viddler</groupId>
   <artifactId>viddler-apiclient</artifactId>
   <name>Viddler.com API client</name>
-  <version>1.4.0</version>
+  <version>1.5.0</version>
   <url>http://www.viddler.com</url>
 
   <build>
