@@ -431,6 +431,11 @@ public class ViddlerApiClient {
     return viddlerVideosGetByUser(usernames, page, perPage, null, null, useSessionId);
   }
 
+  public VideoList viddlerVideosGetByUser(String[] usernames, Integer page, Integer perPage, VideosListSort sort,
+      String[] tags, boolean useSessionId) throws ClientException, ApiException {
+    return viddlerVideosGetByUser(usernames, page, perPage, sort, tags, null, useSessionId);
+  }
+
   /**
    * viddler.videos.getByUser
    * 
@@ -443,11 +448,12 @@ public class ViddlerApiClient {
    * @throws ApiException
    */
   public VideoList viddlerVideosGetByUser(String[] usernames, Integer page, Integer perPage, VideosListSort sort,
-      String[] tags, boolean useSessionId) throws ClientException, ApiException {
+      String[] tags, String visibility, boolean useSessionId) throws ClientException, ApiException {
     ParametersMap<String, Serializable> map = new ParametersMap<String, Serializable>();
     map.put("user", usernames);
     map.put("page", page);
     map.put("per_page", perPage);
+    map.put("visibility", visibility);
     if (sort != null) {
       map.put("sort", sort.value());
     }
@@ -998,7 +1004,9 @@ public class ViddlerApiClient {
     List<NameValuePair> nvps = new ArrayList<NameValuePair>();
     if (vals != null) {
       for (String[] pair : vals) {
-        nvps.add(new NameValuePair(pair[0], pair[1]));
+        if (pair[1] != null) {
+          nvps.add(new NameValuePair(pair[0], pair[1]));
+        }
       }
     }
     return nvps;
