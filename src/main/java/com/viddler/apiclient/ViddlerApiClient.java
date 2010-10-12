@@ -56,34 +56,34 @@ import com.viddler.apiclient.ssl.UnsecureSSLProtocolSocketFactory;
 
 /**
  * Java Viddler API Client main class. Basic usage:
- * 
+ *
  * <pre>
  * ViddlerApiClient client = new ViddlerApiClient();
  * ApiInfo apiInfo = client.viddlerApiGetInfo();
  * </pre>
- * 
+ *
  * For detailed methods and method parameters description see Viddler API
  * documentation page at
  * http://wiki.developers.viddler.com/index.php/Viddler_API
- * 
+ *
  * Note: This is first public release of Java Viddler API Client which may still
  * contain bugs and missing javadocs. If you have any problems or questions fell
  * free to contact me at:
- * 
+ *
  * <pre>
  * Viddler:
  * - http://www.viddler.com/drkn/
  * - http://www.viddler.com/forums/support/
  * - http://www.viddler.com/groups/developers/
  * </pre>
- * 
+ *
  * @author Maciej Dragan
- * 
+ *
  */
 public class ViddlerApiClient {
 
   public static final String ENDPOINT = "http://api.viddler.com/rest/v1/";
-  public static final String CLIENTVERSION = "1.5.0";
+  public static final String CLIENTVERSION = "1.5.1";
   public static final String CHARSET = "UTF-8";
   public static final int SO_TIMEOUT = 30000;
   public static final int ERRORCODE_SESSION_INVALID = 9;
@@ -98,7 +98,7 @@ public class ViddlerApiClient {
 
   /**
    * Create new API Client instance with given apiKey
-   * 
+   *
    * @param apiKey
    * @throws ClientException
    */
@@ -123,7 +123,7 @@ public class ViddlerApiClient {
 
   /**
    * Set proxy for http connection
-   * 
+   *
    * @param host
    *          Proxy server host
    * @param port
@@ -137,7 +137,7 @@ public class ViddlerApiClient {
 
   /**
    * Set credentials for methods which require authentication
-   * 
+   *
    * @param username
    * @param password
    */
@@ -156,7 +156,7 @@ public class ViddlerApiClient {
   /**
    * Set custom API endpoint (generally for testing purposes). Changing endpoint
    * will reset your current credentials
-   * 
+   *
    * @param endpoint
    */
   public void setEndpoint(String endpoint, boolean useDevSSL) {
@@ -177,7 +177,7 @@ public class ViddlerApiClient {
 
   /**
    * viddler.api.getInfo
-   * 
+   *
    * @throws ApiException
    * @throws ClientException
    */
@@ -187,7 +187,7 @@ public class ViddlerApiClient {
 
   /**
    * viddler.users.auth
-   * 
+   *
    * @throws ClientException
    * @throws ApiException
    */
@@ -210,10 +210,10 @@ public class ViddlerApiClient {
   /**
    * Enables one method call API login. This method is a wrapper for
    * <code>setCredentials</code> and <code>viddlerUsersAuth</code> methods
-   * 
+   *
    * @see #setCredentials(String, String)
    * @see #viddlerUsersAuth()
-   * 
+   *
    * @param username
    * @param password
    * @throws ClientException
@@ -230,7 +230,7 @@ public class ViddlerApiClient {
 
   /**
    * viddler.users.register
-   * 
+   *
    * @param username
    * @param password
    * @param email
@@ -257,7 +257,7 @@ public class ViddlerApiClient {
 
   /**
    * viddler.users.getProfile
-   * 
+   *
    * @param username
    * @return
    * @throws ClientException
@@ -269,9 +269,9 @@ public class ViddlerApiClient {
 
   /**
    * viddler.users.setProfile
-   * 
+   *
    * If you don't want to change specific field - pass null as value
-   * 
+   *
    * @param firstName
    * @param lastName
    * @param birthdate
@@ -298,11 +298,11 @@ public class ViddlerApiClient {
 
   /**
    * viddler.users.setOptions
-   * 
+   *
    * This method has limited access to usually partner level
-   * 
+   *
    * If you don't want to change specific field - pass null as value
-   * 
+   *
    * @param showAccount
    * @param taggingEnabled
    * @param commentingEnabled
@@ -342,7 +342,7 @@ public class ViddlerApiClient {
 
   /**
    * Search users
-   * 
+   *
    * @param query
    * @param type
    * @param page
@@ -367,7 +367,7 @@ public class ViddlerApiClient {
 
   /**
    * viddler.videos.getRecordToken
-   * 
+   *
    * @return
    * @throws ClientException
    * @throws ApiException
@@ -377,9 +377,9 @@ public class ViddlerApiClient {
   }
 
   /**
-   * 
+   *
    * viddler.videos.getDetails
-   * 
+   *
    * @param videoid
    * @param useSessionId
    *          Send current crendentials with request? This allows to get private
@@ -395,7 +395,7 @@ public class ViddlerApiClient {
 
   /**
    * viddler.videos.getDetailsByUrl
-   * 
+   *
    * @param url
    * @param useSessionId
    * @return
@@ -409,7 +409,7 @@ public class ViddlerApiClient {
 
   /**
    * viddler.videos.getStatus
-   * 
+   *
    * @param videoid
    * @param useSessionId
    * @return
@@ -438,7 +438,7 @@ public class ViddlerApiClient {
 
   /**
    * viddler.videos.getByUser
-   * 
+   *
    * @param usernames
    * @param page
    * @param perPage
@@ -465,7 +465,7 @@ public class ViddlerApiClient {
 
   /**
    * viddler.videos.getByUser
-   * 
+   *
    * @param username
    * @param page
    * @param perPage
@@ -481,7 +481,7 @@ public class ViddlerApiClient {
 
   /**
    * viddler.videos.getFeatured
-   * 
+   *
    * @return
    * @throws ClientException
    * @throws ApiException
@@ -497,7 +497,7 @@ public class ViddlerApiClient {
 
   /**
    * viddler.videos.getByTag
-   * 
+   *
    * @param tag
    * @param page
    * @param perPage
@@ -519,7 +519,7 @@ public class ViddlerApiClient {
 
   /**
    * viddler.videos.delete
-   * 
+   *
    * @param videoid
    * @return
    * @throws ClientException
@@ -532,7 +532,7 @@ public class ViddlerApiClient {
 
   /**
    * viddler.videos.upload
-   * 
+   *
    * @param file
    * @param title
    * @param description
@@ -549,7 +549,7 @@ public class ViddlerApiClient {
 
   /**
    * viddler.videos.upload
-   * 
+   *
    * @param file
    * @param title
    * @param description
@@ -579,7 +579,7 @@ public class ViddlerApiClient {
 
   /**
    * viddler.videos.prepareUpload
-   * 
+   *
    * @return
    * @throws ClientException
    * @throws ApiException
@@ -590,7 +590,7 @@ public class ViddlerApiClient {
 
   /**
    * Searches viddler's videos
-   * 
+   *
    * @param query
    * @param type
    * @param page
@@ -616,7 +616,7 @@ public class ViddlerApiClient {
 
   /**
    * Helper for preparing upload POST HTTP request
-   * 
+   *
    * @param file
    * @param title
    * @param description
@@ -643,10 +643,10 @@ public class ViddlerApiClient {
 
   /**
    * viddler.videos.setDetails
-   * 
+   *
    * All parameters except videoid are optional. If you don't want to change
    * anything, just pass <code>null</code>
-   * 
+   *
    * @param videoid
    * @param title
    * @param description
@@ -690,7 +690,7 @@ public class ViddlerApiClient {
   }
 
   /**
-   * 
+   *
    * @param videoid
    * @param permalink
    * @return
@@ -703,7 +703,7 @@ public class ViddlerApiClient {
   }
 
   /**
-   * 
+   *
    * @param videoid
    * @param timepoint
    * @return
@@ -717,7 +717,7 @@ public class ViddlerApiClient {
 
   /**
    * Upload a thumbnail for a video
-   * 
+   *
    * @param videoid
    * @param file
    * @return
@@ -741,7 +741,7 @@ public class ViddlerApiClient {
 
   /**
    * viddler.videos.comments.add
-   * 
+   *
    * @param videoid
    * @param comment
    * @return
@@ -765,7 +765,7 @@ public class ViddlerApiClient {
 
   /**
    * viddler.videos.comments.remove
-   * 
+   *
    * @param commentId
    * @return
    * @throws ClientException
@@ -791,7 +791,7 @@ public class ViddlerApiClient {
 
   /**
    * Send request using HTTP GET method
-   * 
+   *
    * @param apiMethods
    * @return
    * @throws ClientException
@@ -803,7 +803,7 @@ public class ViddlerApiClient {
 
   /**
    * Send request using HTTP GET method
-   * 
+   *
    * @param apiMethods
    * @param params
    * @return
@@ -830,7 +830,7 @@ public class ViddlerApiClient {
 
   /**
    * Prepare POST HTTP request
-   * 
+   *
    * @param apiMethod
    * @param params
    * @param requireAuth
@@ -853,7 +853,7 @@ public class ViddlerApiClient {
 
   /**
    * Send request using HTTP POST method
-   * 
+   *
    * @param apiMethod
    * @param params
    * @return
@@ -880,7 +880,7 @@ public class ViddlerApiClient {
 
   /**
    * Prepare POST HTTP request
-   * 
+   *
    * @param apiMethod
    * @param params
    * @param requireAuth
@@ -903,7 +903,7 @@ public class ViddlerApiClient {
 
   /**
    * Prepare parameters for HTTP method call
-   * 
+   *
    * @param apiMethod
    * @param params
    * @param requireAuth
@@ -925,7 +925,7 @@ public class ViddlerApiClient {
 
   /**
    * Send HTTP request
-   * 
+   *
    * @param method
    * @return
    * @throws ClientException
@@ -939,7 +939,7 @@ public class ViddlerApiClient {
       httpClient.executeMethod(method);
       Header contentTypeHeader = method.getResponseHeader("Content-Type");
       String contentType = contentTypeHeader != null ? contentTypeHeader.getValue() : null;
-      if (!"text/xml".equals(contentType)) {
+      if (contentType == null || !contentType.startsWith("text/xml")) {
         throw new ClientException("Invalid API response contentType: " + contentType + ". Should be text/xml.");
       }
 
@@ -968,7 +968,7 @@ public class ViddlerApiClient {
   /**
    * Class uses castor's unmarshal method which is not compatibile with Java 1.5
    * therefore must supress unchecked warning
-   * 
+   *
    * @param <T>
    * @param document
    * @param clazz
@@ -996,7 +996,7 @@ public class ViddlerApiClient {
 
   /**
    * Construct NameValuePair list for API get request (helper method)
-   * 
+   *
    * @param vals
    * @return
    */
@@ -1014,7 +1014,7 @@ public class ViddlerApiClient {
 
   /**
    * Is string empty or null?
-   * 
+   *
    * @param value
    * @return
    */
@@ -1045,7 +1045,7 @@ public class ViddlerApiClient {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see java.lang.Object#toString()
    */
   @Override

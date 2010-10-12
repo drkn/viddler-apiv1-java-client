@@ -7,7 +7,7 @@
   <groupId>com.viddler</groupId>
   <artifactId>viddler-apiclient</artifactId>
   <name>Viddler.com API v1 client</name>
-  <version>1.5.0</version>
+  <version>1.5.1</version>
   <url>http://www.viddler.com</url>
 
   <build>
@@ -28,7 +28,7 @@
            <addMavenDescriptor>false</addMavenDescriptor>
          </archive>
        </configuration>
-     </plugin>       
+     </plugin>
     </plugins>
   </build>
 
