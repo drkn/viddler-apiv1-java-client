@@ -83,7 +83,7 @@ import com.viddler.apiclient.ssl.UnsecureSSLProtocolSocketFactory;
 public class ViddlerApiClient {
 
   public static final String ENDPOINT = "http://api.viddler.com/rest/v1/";
-  public static final String CLIENTVERSION = "1.5.1";
+  public static final String CLIENTVERSION = "1.5.2";
   public static final String CHARSET = "UTF-8";
   public static final int SO_TIMEOUT = 30000;
   public static final int ERRORCODE_SESSION_INVALID = 9;
