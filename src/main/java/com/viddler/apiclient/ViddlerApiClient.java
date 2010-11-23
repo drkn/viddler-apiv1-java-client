@@ -197,8 +197,10 @@ public class ViddlerApiClient {
     }
     // Clear current session
     credentials.setSessionid(null);
-    Auth response = (Auth) unmarshal(post("viddler.users.auth", new String[][] { { "user", credentials.getUsername() },
-        { "password", credentials.getPassword() } }, false, useSSL), Auth.class);
+    Auth response = (Auth) unmarshal(
+        post("viddler.users.auth",
+            new String[][] { { "user", credentials.getUsername() }, { "password", credentials.getPassword() } }, false,
+            useSSL), Auth.class);
     // Set new session
     credentials.setSessionid(response.getSessionid());
   }
@@ -248,10 +250,11 @@ public class ViddlerApiClient {
   public boolean viddlerUsersRegister(String username, String password, String email, String firstname,
       String lastname, String question, String answer, String lang, String company, boolean termsAccepted)
       throws ClientException, ApiException {
-    User user = unmarshal(post("viddler.users.register",
-        new String[][] { { "user", username }, { "email", email }, { "fname", firstname }, { "lname", lastname },
-            { "password", password }, { "question", question }, { "answer", answer }, { "lang", lang },
-            { "termsaccepted", termsAccepted ? "1" : "0" }, { "company", company } }, false), User.class);
+    User user = unmarshal(
+        post("viddler.users.register", new String[][] { { "user", username }, { "email", email },
+            { "fname", firstname }, { "lname", lastname }, { "password", password }, { "question", question },
+            { "answer", answer }, { "lang", lang }, { "termsaccepted", termsAccepted ? "1" : "0" },
+            { "company", company } }, false), User.class);
     return user != null && user.getUsername().equals(username);
   }
 
@@ -711,8 +714,9 @@ public class ViddlerApiClient {
    * @throws ApiException
    */
   public Thumbnail viddlerVideosSetThumbnail(String videoid, int timepoint) throws ClientException, ApiException {
-    return unmarshal(post("viddler.videos.setThumbnail", new String[][] { { "video_id", videoid },
-        { "timepoint", "" + timepoint } }, true), Thumbnail.class);
+    return unmarshal(
+        post("viddler.videos.setThumbnail",
+            new String[][] { { "video_id", videoid }, { "timepoint", "" + timepoint } }, true), Thumbnail.class);
   }
 
   /**
@@ -728,11 +732,9 @@ public class ViddlerApiClient {
     try {
       checkAuth();
       PostMethod post = new PostMethod(endpoint);
-      post
-          .setRequestEntity(new MultipartRequestEntity(new Part[] { new StringPart("api_key", apiKey),
-              new StringPart("method", "viddler.videos.setThumbnail"), new StringPart("video_id", videoid),
-              new StringPart("sessionid", getCredentials().getSessionid()), new FilePart("file", file) }, post
-              .getParams()));
+      post.setRequestEntity(new MultipartRequestEntity(new Part[] { new StringPart("api_key", apiKey),
+          new StringPart("method", "viddler.videos.setThumbnail"), new StringPart("video_id", videoid),
+          new StringPart("sessionid", getCredentials().getSessionid()), new FilePart("file", file) }, post.getParams()));
       return unmarshal(execute(post), Thumbnail.class);
     } catch (FileNotFoundException e) {
       throw new ClientException("Thumbnail not found", e);
@@ -751,11 +753,13 @@ public class ViddlerApiClient {
   public Comment viddlerVideosCommentsAdd(String videoid, String comment, BigDecimal timepoint) throws ClientException,
       ApiException {
     if (timepoint != null) {
-      return unmarshal(post("viddler.videos.comments.add", new String[][] { { "video_id", videoid },
-          { "text", comment }, { "timepoint", "" + timepoint } }, true), Comment.class);
+      return unmarshal(
+          post("viddler.videos.comments.add", new String[][] { { "video_id", videoid }, { "text", comment },
+              { "timepoint", "" + timepoint } }, true), Comment.class);
     } else {
-      return unmarshal(post("viddler.videos.comments.add", new String[][] { { "video_id", videoid },
-          { "text", comment } }, true), Comment.class);
+      return unmarshal(
+          post("viddler.videos.comments.add", new String[][] { { "video_id", videoid }, { "text", comment } }, true),
+          Comment.class);
     }
   }
 
@@ -815,7 +819,8 @@ public class ViddlerApiClient {
     try {
       return execute(prepareGet(apiMethod, params, requireAuth, ssl));
     } catch (ApiException e) {
-      if (e.getError().getCode() == ERRORCODE_SESSION_INVALID && reauthenticate) {
+      if (e.getError().getCode() == ERRORCODE_SESSION_INVALID && reauthenticate
+          && !"viddler.users.auth".equals(apiMethod)) {
         viddlerUsersAuth();
       } else {
         throw e;
@@ -865,7 +870,8 @@ public class ViddlerApiClient {
     try {
       return execute(preparePost(apiMethod, params, requireAuth, ssl));
     } catch (ApiException e) {
-      if (e.getError().getCode() == ERRORCODE_SESSION_INVALID && reauthenticate) {
+      if (e.getError().getCode() == ERRORCODE_SESSION_INVALID && reauthenticate
+          && !"viddler.users.auth".equals(apiMethod)) {
         viddlerUsersAuth();
       } else {
         throw e;
@@ -933,9 +939,11 @@ public class ViddlerApiClient {
    */
   private Document execute(HttpMethod method) throws ClientException, ApiException {
     try {
-      method.setRequestHeader("User-Agent", "Java Viddler API Client/" + CLIENTVERSION + " ("
-          + System.getProperty("os.name") + " " + System.getProperty("os.version") + "; Java "
-          + System.getProperty("java.vm.version") + "; " + System.getProperty("user.language") + ")");
+      method.setRequestHeader(
+          "User-Agent",
+          "Java Viddler API Client/" + CLIENTVERSION + " (" + System.getProperty("os.name") + " "
+              + System.getProperty("os.version") + "; Java " + System.getProperty("java.vm.version") + "; "
+              + System.getProperty("user.language") + ")");
       httpClient.executeMethod(method);
       Header contentTypeHeader = method.getResponseHeader("Content-Type");
       String contentType = contentTypeHeader != null ? contentTypeHeader.getValue() : null;
